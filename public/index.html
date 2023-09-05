@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>LinkedIn Auth Demo</title>
+
+  <link rel="icon" href="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7">
+
+  <link rel="stylesheet" href="https://unpkg.com/spectre.css/dist/spectre.min.css">
+  <link rel="stylesheet" href="https://unpkg.com/spectre.css/dist/spectre-exp.min.css">
+  <link rel="stylesheet" href="https://unpkg.com/spectre.css/dist/spectre-icons.min.css">
+
+  <style>
+    a { text-decoration: underline }
+    table {
+      border-collapse: collapse;
+      border: 1px solid #ccc;
+    }
+    td, th {
+      padding: 0.25rem 0.5rem;
+      border: 1px solid #ddd;
+    }
+    th {
+      background-color: #eee;
+    }
+    tr:last-child td {
+      background-color: cornsilk;
+    }
+  </style>
+</head>
+
+<body class="p-2 m-2">
+
+  <h3>
+    Steps to trigger access token issue...
+  </h3>
+
+  <ol>
+    <li>
+      <% if (session.accounts.length === 0) { %>
+        <a href="/auth/linkedin">
+          Login with LinkedIn (first time)
+        </a>
+      <% } else { %>
+        👍 Got Access Token #1
+        <span style="color: gray; padding-left: 0.25rem;"> -
+          version: <code><%= session.accounts[0].version %></code>,
+          scopes: <code><%= session.accounts[0].scopes %></code>
+        </span>
+      <% } %>
+    </li>
+
+    <li>
+      <% if (session.accounts.length === 0) { %>
+        <span class="text-gray">
+          Login with LinkedIn (second time)
+        </span>
+      <% } else if (session.accounts.length === 1) { %>
+        <a href="/auth/linkedin">
+          Login with LinkedIn (second time)
+        </a>
+      <% } else { %>
+        👍 Got Access Token #2
+        <span style="color: gray; padding-left: 0.25rem;"> -
+          version: <code><%= session.accounts[1].version %></code>,
+          scopes: <code><%= session.accounts[1].scopes %></code>
+        </span>
+      <% } %>
+    </li>
+
+    <li>
+      <% if (session.accounts.length < 2) { %>
+        <span class="text-gray">
+          Begin Tests
+        </span>
+      <% } else if (!session.tests) { %>
+        <a href="/begin-tests">
+          Begin Tests (with Token #2)
+        </a>
+      <% } else { %>
+
+        <%
+          const done = session.tests.filter(t => t.status === 'success').length > 0
+        %>
+
+        <% if (done) { %>
+          <span>
+            Done running tests 😁
+          </span>
+        <% } else { %>
+          <div class="" style="display: inline-block;">
+            <div style="display: flex; flex-direction: row; gap: 0.8rem; align-items: center; padding-left: 0.5rem">
+              <div class="loading"></div>
+              Running Tests (using Token #2)...
+              <span class="text-gray text-small">
+                (may take 5-10 minutes)
+              </span>
+            </div>
+          </div>
+          <script>
+            setTimeout(() => { window.location.reload() }, 5000)
+          </script>
+        <% } %>
+
+        <table style="margin: 1rem" class="text-tiny">
+          <thead>
+            <tr>
+              <th>Test&nbsp;#</th>
+              <th>Time</th>
+              <th>Status</th>
+              <th>Details</th>
+            </tr>
+          <tbody>
+            <% session.tests.slice(0).forEach((test, i) => { %>
+              <tr>
+                <td><%= 1 + i %></td>
+                <td><%= test.time %></td>
+                <td><%= test.status %></td>
+                <td><%= test.details %></td>
+              </tr>
+            <% }) %>
+          </tbody>
+        </table>
+
+        <script>
+          setTimeout(() => {
+            window.scrollTo(0, document.body.scrollHeight)
+          })
+        </script>
+      <% } %>
+    </li>
+
+  </ol>
+
+
+</body>
+</html>

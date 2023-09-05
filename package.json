@@ -1,0 +1,24 @@
+{
+  "name": "linkedin-auth-bug",
+  "version": "1.0.0",
+  "description": "Demo of issue with an old access token being used for requests with a new access token.",
+  "main": "server.js",
+  "repository": "https://github.com/twobitfool/linkedin-auth-bug",
+  "author": "Matt Smith<matt@twobitfool.com>",
+  "license": "MIT",
+  "type": "module",
+  "engines": {
+    "node": "v16"
+  },
+  "scripts": {
+    "build": "echo 'No build step needed'",
+    "dev": "NODE_ENV=development nodemon start ./",
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "dotenv": "^16.3.1",
+    "ejs": "^3.1.9",
+    "koa": "^2.14.2",
+    "node-fetch": "^3.3.2"
+  }
+}
