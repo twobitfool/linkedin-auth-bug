@@ -5,7 +5,7 @@ import Koa from 'koa'
 import { finalizeAuth, generateAuthUrl, getLinkedinProfile } from './linkedin.js'
 
 
-const PORT = 3000
+const PORT = process.env.PORT || 3000
 const app = new Koa()
 
 app.use(async (ctx) => {
