@@ -51,6 +51,13 @@ app.use(async (ctx) => {
     acct.token = `Token #${session.accounts.length + 1}`
     session.accounts.push(acct)
 
+    if (process.env.VERBOSE_LOGGING) {
+      console.log('\n-------------------------------------------------------------')
+      console.log(`🔑 Created NEW ACCESS TOKEN at ${new Date().toISOString()}`)
+      console.log(JSON.stringify(acct, null, 2))
+      console.log('-------------------------------------------------------------\n\n')
+    }
+
     if (firstAccount) {
       try {
         await getLinkedinProfile(acct)

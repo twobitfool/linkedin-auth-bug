@@ -6,7 +6,7 @@ import { randomBytes } from 'crypto'
 import fetch from 'node-fetch'
 
 
-const { LINKEDIN_API_KEY, LINKEDIN_API_SECRET, ROOT_URL } = process.env
+const { LINKEDIN_API_KEY, LINKEDIN_API_SECRET, ROOT_URL, VERBOSE_LOGGING } = process.env
 
 const REDIRECT_URL = `${ROOT_URL || 'http://localhost:3000'}/confirm-linkedin`
 
@@ -143,6 +143,24 @@ async function apiRequest(acct, url, { params={}, method='GET', body, headers={}
     console.log(`WARNING: Couldn't get text from LinkedIn API response to ${url}`)
   }
 
+  if (VERBOSE_LOGGING) {
+    console.log('\n-------------------------------------------------------------')
+    console.log(`📞 LinkedIn API Request with ${acct.token} at ${new Date().toISOString()}`)
+    console.log('METHOD:   ', method)
+    console.log('URL:      ', url)
+    console.log('VERSION:  ', acct.version)
+    console.log('SCOPES:   ', JSON.stringify(acct.scopes))
+    console.log('STATUS:   ', response.status)
+    console.log('HEADERS:  ', JSON.stringify(headers))
+    let curlCommand = [`curl --location '${url}'`]
+    for (const key in headers) {
+      curlCommand.push(`--header '${key}: ${headers[key]}'`)
+    }
+    console.log('CURL:     ', curlCommand.join(` `))
+    console.log('RESPONSE: ', JSON.stringify(data))
+    console.log('-------------------------------------------------------------\n\n')
+  }
+
   if (!response.ok) {
     console.log('X-LI-UUID Response Header:', response.headers.get('X-LI-UUID'))
     const error = new Error(`LinkedIn request failed ${method} ${url} - ${response.status} ${response.statusText} - ${data}`)
@@ -155,10 +173,10 @@ async function apiRequest(acct, url, { params={}, method='GET', body, headers={}
     try {
       data = JSON.parse(data)
     } catch (err) {
-      console.log('--------- Error parsing LinkedIn API JSON -----------------')
-      console.error(data)
-      console.error(err)
-      console.log('-----------------------------------------------------------')
+      console.log('~~~~~~~~~~~~~ Error parsing LinkedIn API JSON ~~~~~~~~~~~~~')
+      console.log(data)
+      console.log(err)
+      console.log('~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~')
       throw Error(`Couldn't parse LinkedIn API response`)
     }
   }
