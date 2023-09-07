@@ -2,7 +2,7 @@ import crypto from 'crypto'
 import ejs from 'ejs'
 import fs from 'fs'
 import Koa from 'koa'
-import { finalizeAuth, generateAuthUrl, getLinkedinProfile } from './linkedin.js'
+import { finalizeAuth, generateAuthUrl, getLinkedinOrgs, getLinkedinProfile } from './linkedin.js'
 
 
 const PORT = process.env.PORT || 3000
@@ -29,9 +29,13 @@ app.use(async (ctx) => {
     const firstAccount = accounts.length === 0
 
     if (firstAccount) {
-      url = generateAuthUrl({ scopes: ['r_liteprofile'] })
+      url = generateAuthUrl({ scopes: [
+        'r_basicprofile',
+      ] })
     } else if (accounts.length === 1) {
-      url = generateAuthUrl({ scopes: ['r_basicprofile'] })
+      url = generateAuthUrl({ scopes: [
+        'r_organization_admin',
+      ] })
     } else {
       url = '/'
     }
@@ -47,7 +51,7 @@ app.use(async (ctx) => {
 
     const acct = await finalizeAuth({code: ctx.query.code})
 
-    acct.version = firstAccount ? '202305' : '202306'
+    acct.version = '202308'
     acct.token = `Token #${session.accounts.length + 1}`
     session.accounts.push(acct)
 
@@ -65,50 +69,55 @@ app.use(async (ctx) => {
         console.log('Error fetching profile for first account')
         console.error(err)
       }
+    } else {
+      session.tests = []
+      session.status = 'running'
+      keepUsingBothTokens()
     }
 
     ctx.redirect('/')
     return
-  }
 
+    async function keepUsingBothTokens() {
 
-  if (ctx.path === '/begin-tests') {
-    const session = getSession(ctx)
+      const accounts = session.accounts.slice(0, 2)
 
-    session.tests = []
+      for (let i=0; i<session.testCount; i++) {
+        const loopStart = new Date()
 
-    fetchProfileRepeatedly(session.accounts[1])
-
-    ctx.redirect('/')
-    return
-
-    async function fetchProfileRepeatedly(acct) {
-
-      for (let i=0; i<100; i++) {
         const result = {
-          name: acct.name,
-          token: acct.token,
           time: new Date().toLocaleString(),
+          requests: [],
           status: 'pending',
         }
 
+        for (const acct of accounts) {
+
+          result.requests.push({
+            acct: acct,
+            url: '/me',
+            apiResult: await callApi({ acct, method: getLinkedinProfile })
+          })
+
+          result.requests.push({
+            acct: acct,
+            url: '/organizationAcls',
+            apiResult: await callApi({ acct, method: getLinkedinOrgs })
+          })
+
+        }
         session.tests.push(result)
 
-        try {
-          await getLinkedinProfile(acct)
-          result.status = 'success'
-          break
-        } catch (err) {
-          // This will happen for about 5 minutes after the old token was created
-          console.log('Error fetching profile for second account')
-          console.error(err)
+        const loopEnd = new Date()
+        const loopDuration = loopEnd - loopStart
+        const delay = session.testDelay * 1000 - loopDuration
 
-          result.status = 'failed'
-          result.details = err.data
+        if (i < session.testCount - 1) {
+          await new Promise(resolve => setTimeout(resolve, delay))
         }
-
-        await new Promise(resolve => setTimeout(resolve, 5000))
       }
+
+      session.status = 'done'
     }
   }
 
@@ -132,6 +141,33 @@ console.log(`Server is running at http://localhost:${PORT}`)
 //------------------------------------------------------------------------------
 
 
+async function callApi({acct, method}) {
+
+  const result = {}
+
+  let requestFailed = false
+  try {
+    result.details = await method(acct)
+    result.success = true
+  } catch (err) {
+    requestFailed = true
+    try {
+      result.details = JSON.parse(err.data)
+    } catch (e) {
+      // failed to parse json error -- no worries
+      result.details = err.data
+    }
+    result.success = false
+    console.error(err)
+  }
+
+  return result
+}
+
+
+//------------------------------------------------------------------------------
+
+
 const SESSIONS = {}
 
 const SESSION_COOKIE_NAME = 'linkedin_demo_session'
@@ -150,6 +186,10 @@ function getSession(ctx) {
     SESSIONS[sessionId] = {
       id: sessionId,
       accounts: [],
+      tests: [],
+      testCount: 10,
+      testDelay: 60, // seconds between tests
+      status: 'pending'
     }
     ctx.cookies.set(SESSION_COOKIE_NAME, sessionId, COOKIE_OPTIONS)
   }

@@ -20,12 +20,17 @@
     td, th {
       padding: 0.25rem 0.5rem;
       border: 1px solid #ddd;
+      text-align: center;
     }
     th {
-      background-color: #eee;
+      background-color: #f6f6f6;
+      font-weight: normal;
     }
     tr:last-child td {
       background-color: cornsilk;
+    }
+    .nowrap {
+      white-space: nowrap;
     }
   </style>
 </head>
@@ -40,12 +45,11 @@
     <li>
       <% if (session.accounts.length === 0) { %>
         <a href="/auth/linkedin">
-          Login with LinkedIn (first time)
+          Login with LinkedIn (to create Token #1)
         </a>
       <% } else { %>
         👍 Got Access Token #1
         <span style="color: gray; padding-left: 0.25rem;"> -
-          version: <code><%= session.accounts[0].version %></code>,
           scopes: <code><%= session.accounts[0].scopes %></code>
         </span>
       <% } %>
@@ -54,34 +58,24 @@
     <li>
       <% if (session.accounts.length === 0) { %>
         <span class="text-gray">
-          Login with LinkedIn (second time)
+          Login with LinkedIn (to create Token #2)
         </span>
       <% } else if (session.accounts.length === 1) { %>
         <a href="/auth/linkedin">
-          Login with LinkedIn (second time)
+          Login with LinkedIn (to create Token #2)
         </a>
       <% } else { %>
         👍 Got Access Token #2
         <span style="color: gray; padding-left: 0.25rem;"> -
-          version: <code><%= session.accounts[1].version %></code>,
           scopes: <code><%= session.accounts[1].scopes %></code>
         </span>
       <% } %>
     </li>
 
-    <li>
-      <% if (session.accounts.length < 2) { %>
-        <span class="text-gray">
-          Begin Tests
-        </span>
-      <% } else if (!session.tests) { %>
-        <a href="/begin-tests">
-          Begin Tests (with Token #2)
-        </a>
-      <% } else { %>
-
+    <div style="margin-top: 2rem">
+      <% if (session.status !== 'pending') { %>
         <%
-          const done = session.tests.filter(t => t.status === 'success').length > 0
+          const done = session.status === 'done'
         %>
 
         <% if (done) { %>
@@ -90,51 +84,80 @@
           </span>
         <% } else { %>
           <div class="" style="display: inline-block;">
-            <div style="display: flex; flex-direction: row; gap: 0.8rem; align-items: center; padding-left: 0.5rem">
-              <div class="loading"></div>
-              Running Tests (using Token #2)...
-              <span class="text-gray text-small">
-                (may take 5-10 minutes)
-              </span>
+            <div style="display: flex; flex-direction: row; gap: 0.8rem; align-items: start; padding-left: 0.5rem">
+              <div class="loading" style="margin-top: 0.2rem"></div>
+              <div>
+                Running Test <%= session.tests.length + 1 %> of <%= session.testCount %>...
+                <div class="text-gray text-small">
+                  <%= session.testDelay %> seconds between tests, estimated duration: <%= Math.ceil(session.testDelay * session.testCount / 60) %> minutes
+                </div>
+              </div>
             </div>
           </div>
           <script>
-            setTimeout(() => { window.location.reload() }, 5000)
+            setTimeout(() => { window.location.reload() }, <%= session.testDelay * 1000%>)
           </script>
         <% } %>
 
-        <table style="margin: 1rem" class="text-tiny">
-          <thead>
-            <tr>
-              <th>Test&nbsp;#</th>
-              <th>Time</th>
-              <th>Token</th>
-              <th>Status</th>
-              <th>Details</th>
-            </tr>
-          <tbody>
-            <% session.tests.slice(0).forEach((test, i) => { %>
+        <% if (session.tests.length >= 1) { %>
+          <table style="margin-top: 1rem" class="text-tiny">
+            <thead>
               <tr>
-                <td><%= 1 + i %></td>
-                <td><%= test.time %></td>
-                <td><%= test.token %></td>
-                <td><%= test.status %></td>
-                <td><%= test.details %></td>
+                <th></th>
+                <th></th>
+                <%
+                  for( let i = 0; i < session.accounts.length; i++ ) {
+                    const acct = session.accounts[i]
+                %>
+                  <th colspan="<%= session.tests[0].requests.length / session.accounts.length%>">
+                    <b><%= acct.token %></b>
+                    <br/>
+                    <%= acct.scopes %>
+                  </th>
+                <% } %>
               </tr>
-            <% }) %>
-          </tbody>
-        </table>
+              <tr>
+                <th>Test&nbsp;#</th>
+                <th>Time</th>
+                <% for( let i = 0; i < session.tests[0].requests.length; i++ ) {
+                  const request = session.tests[0].requests[i]
+                %>
+                  <th>
+                    <%= request.url %>
+                  </th>
+                <% } %>
+              </tr>
+            <tbody>
+              <% session.tests.slice(0).forEach((test, i) => { %>
+                <tr>
+                  <td><%= 1 + i %></td>
+                  <td class="nowrap"><%= test.time %></td>
+
+                  <% for( let i = 0; i < test.requests.length; i++ ) {
+                    const request = test.requests[i]
+                  %>
+                    <td>
+                      <abbr title="<%= JSON.stringify(request.apiResult.details, null, 2) %>">
+                        <%= request.apiResult.success ? '👍 SUCCESS' : '🔥 ERROR' %>
+                      </abbr>
+                    </td>
+                  <% } %>
+                </tr>
+              <% }) %>
+            </tbody>
+          </table>
+        <% } %>
 
         <script>
-          setTimeout(() => {
-            window.scrollTo(0, document.body.scrollHeight)
-          })
+          // setTimeout(() => { window.scrollTo(0, document.body.scrollHeight) })
         </script>
       <% } %>
-    </li>
+    </div>
 
   </ol>
 
+
+  <pre class="text-tiny"><%#= JSON.stringify(session, null, 2)%></pre>
 
 </body>
 </html>
