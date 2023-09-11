@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>LinkedIn Auth Demo - Summary</title>
+
+  <link rel="icon" href="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7">
+
+  <link rel="stylesheet" href="/main.css">
+</head>
+
+
+<body class="p-2 m-2">
+
+  <h1>
+    LinkedIn API Auth Glitch
+  </h1>
+
+  <section style="color: #666; padding: 0 0.5rem 1rem">
+    <p>
+      This <a href="/">demo app</a> shows some unexpected behavior with the LinkedIn API
+      auth system...
+    </p>
+
+    <p>
+      After creating a new access token, the old token can "stick around" for
+      up to 5 minutes (after the last call made with the old token), and
+      <b>requests made with the new token will use the old token's permission
+      scopes</b>.
+    </p>
+
+    <img src="./ghost-token.png" class="has-shadow" style="max-width: 90vw; margin: 1rem 0">
+
+    <p>
+      <b>This makes development difficult</b>. When a developer makes a change
+      to the permission scopes (and reauthorizes), any API requests with the
+      new token <i>might</i> use the old permissions (from a previous token)
+      &mdash; if there was a request made with the old token in the past 5
+      minutes. This makes it seem like their changes didn't make any
+      difference. But then (after the 5 minute window passes) the new
+      permissions will suddenly start working.
+    </p>
+
+    <p>
+      This also creates <b>problems when upgrading the LinkedIn-Version</b>.
+      If the new version requires a change in permissions, the user will need
+      to reauthorize their account, but that could lead to a confusing
+      situation where they get permission errors for up to 5 minutes, because
+      the old token is still cached (and used) by the API. For example: in
+      LinkedIn-Version <code>202305</code>, the minimum permission required
+      for the <a href="https://learn.microsoft.com/en-us/linkedin/shared/integrations/people/profile-api">/rest/me</a>
+      endpoint was <code>r_liteprofile</code>, but starting with
+      <code>202306</code> it needs to be <code>r_basicprofile</code>. So, we
+      need to have our users reauthorize their LinkedIn account, to get a new
+      access token with the new scope, but they could get permission errors
+      from the old token, if it was used in the past 5 minutes.
+    </p>
+
+    <a class="button" href="/">
+      Back to Demo
+    </a>
+  </section>
+</body>
+</html>
