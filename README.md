@@ -29,7 +29,7 @@ Start the server:
 
 ```bash
 yarn install
-yarn start
+yarn start   # or `yarn dev` for local development with auto-reloading
 ```
 
 ## Sample Output

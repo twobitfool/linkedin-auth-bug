@@ -45,18 +45,8 @@ export async function finalizeAuth ( { code } ) {
 }
 
 
-export async function getLinkedinProfile (acct) {
-  const data = await _getLinkedinProfile(acct)
-  const {id, name} = data
-  acct.externalId = id
-  acct.name = name || '(No Name)'
-  return data
-}
-
-
-export async function getLinkedinOrgs (acct) {
-  const results = await _getLinkedinOrgs(acct)
-  return results
+export async function apiFetch ({acct, url, params}) {
+  return await apiRequest( acct, `https://api.linkedin.com${url}`, {params} )
 }
 
 
@@ -116,30 +106,6 @@ async function _fetchAccessToken(acct, code) {
   acct.accessTokenExpiresAt  = new Date(now + (payload.expires_in               * 1000))
   acct.refreshTokenExpiresAt = new Date(now + (payload.refresh_token_expires_in * 1000))
 }
-
-
-// This function requires the LinkedIn scope: r_basicprofile
-async function _getLinkedinProfile (acct) {
-  const profile = await apiRequest( acct, `https://api.linkedin.com/rest/me` )
-
-  const { id, localizedFirstName, localizedLastName } = profile
-  const name = [ localizedFirstName, localizedLastName ].filter(s => s).join(" ")
-
-  return {id, name}
-}
-
-
-// This function requires the LinkedIn scope: r_organization_admin
-async function _getLinkedinOrgs (acct) {
-
-  const orgList = await apiRequest(acct,
-    `https://api.linkedin.com/rest/organizationAcls`,
-    { params: { q: `roleAssignee`, fields: [`organization`, `role`] } }
-  )
-
-  return orgList
-}
-
 
 
 async function apiRequest(acct, url, { params={}, method='GET', body, headers={} }={}) {

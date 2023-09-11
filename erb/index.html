@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>LinkedIn Auth Demo</title>
+
+  <link rel="icon" href="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7">
+
+  <link rel="stylesheet" href="/main.css">
+</head>
+
+<body class="p-2 m-2">
+
+  <h1>
+    LinkedIn API Auth Glitch
+  </h1>
+
+  <h3>
+    Steps:
+  </h3>
+
+  <ol>
+    <% for( let i = 0; i < session.steps.length; i++ ) {
+      const step = session.steps[i]
+      const isCurrent = session.steps.findIndex(s => !s.completedAt) === i
+      const status = step.completedAt ? 'completed' : isCurrent ? 'current' : 'pending'
+      const css = status === 'completed' ? 'text-darkgray' : status === 'current' ? '' : ''
+    %>
+      <li class="step <%= status %>">
+        <div class="flex-row <%=css%>" style="position: relative;">
+          <div style="position: absolute; left: -78px; text-align: right; width: 60px">
+            <div class="flex-row no-gap" style="justify-content: flex-end;">
+              <% if (status === 'completed') { %>
+                ✔
+              <% } else if (status === 'current') { %>
+                <div class="bouncing-right">
+                  👉
+                </div>
+              <% } else { %>
+                &nbsp;&nbsp;&nbsp;
+              <% } %>
+                <%= i + 1 %>)
+            </div>
+          </div>
+
+          <div>
+            <%
+              const disabled = status !== 'current'
+              const label = (
+                step.method === 'reset' ?
+                  'Reset and Start Over'
+                : step.method === 'authorize' ?
+                  'Authorize LinkedIn'
+                : step.method === 'apiFetch' ?
+                  `${step.params.repeat || ''} API test${(step.params.repeat || 1) === 1 ? '' : 's'} ` +
+                  `(using ${step.params.token === '*' ? 'all tokens' : step.params.token})`
+                :
+                  step.title || step.method
+              )
+              if (step.manual) {
+                %>
+                  <a href="<%= disabled ? '#' : '/next-step' %>" class="button nowrap <%= disabled ? 'disabled' : ''%>" style="margin-right: 0.5rem">
+                    <%= label %>
+                  </a>
+                <%
+              } else {
+                %>
+                <div class="flex-row" style="gap: 0.5rem">
+                  <% if (status === 'current' && !step?.manual) { %>
+                      <div class="loading" style="margin: 0 0.5rem"></div>
+                  <% } %>
+                  <span class="<%= status === 'current' ? 'bold' : ''%>">
+                    <%= label %>
+                  </span>
+                </div>
+              <% } %>
+            %>
+          </div>
+          <div class="text-gray">
+            <%= step.method === 'authorize' ?
+              `to create ${step.params.token}`
+            : step.method === 'apiFetch' ?
+              ''
+            : step.text ?
+              step.text
+            :
+              JSON.stringify(step.params)
+            %>
+          </div>
+        </div>
+        <div>
+          <% if (step.method === 'apiFetch') { %>
+            <div>
+              <% if (status !== 'pending' && step.results?.length) { %>
+                <table style="margin-top: 1rem; background-color: white;" class="text-tiny">
+                  <thead>
+                    <tr>
+                      <th></th>
+                      <th></th>
+                      <%
+                        const tokenNames = [...new Set(step.results[0].requests.map(r => r.token))]
+                        const accounts = session.accounts.filter(a => tokenNames.includes(a.token))
+                        for( let i = 0; i < accounts.length; i++ ) {
+                          const acct = accounts[i]
+                      %>
+                        <th class="nowrap" colspan="<%= step.results[0].requests.length / accounts.length%>">
+                          <b><%= acct.token %></b>
+                          <br/>
+                          <%= acct.scopes %> (<%= acct.version %>)
+                        </th>
+                      <% } %>
+                    </tr>
+                    <tr>
+                      <th>Test&nbsp;#</th>
+                      <th>Time</th>
+                      <% for( let i = 0; i < step.results[0].requests.length; i++ ) {
+                        const request = step.results[0].requests[i]
+                      %>
+                        <th>
+                          <%= request.url %>
+                        </th>
+                      <% } %>
+                    </tr>
+                  <tbody>
+                    <% step.results.forEach((test, i) => { %>
+                      <tr>
+                        <td><%= 1 + i %></td>
+                        <td class="nowrap"><%= test.time %></td>
+
+                        <% for( let i = 0; i < test.requests.length; i++ ) {
+                          const request = test.requests[i]
+                        %>
+                          <td style="background-color: <%= request.apiResult.success ? '#c5ffc5' : '#ffd9d9' %>;">
+                            <abbr class="nowrap" title="<%= JSON.stringify(request.apiResult.details, null, 2) %>">
+                              <%= request.apiResult.success ? '👍 SUCCESS' : '🔥 ' + request.apiResult.details?.code || 'ERROR' %>
+                            </abbr>
+                          </td>
+                        <% } %>
+                      </tr>
+                    <% }) %>
+                  </tbody>
+                </table>
+              <% } %>
+
+              <% if (status === 'current' && step.params.repeat) { %>
+                <div style="margin: 0.5rem 0; color: #aaa; font-size: 0.9rem; display: flex; flex-direction: row; gap: 0.8rem; align-items: start; padding-left: 0.5rem">
+                  <i>
+                    <%= step.params.delay %> seconds between tests. Total duration: <%= Math.ceil(step.params.delay * step.params.repeat / 60) %> minutes
+                  </i>
+                </div>
+              <% } %>
+            </div>
+
+          <% } %>
+
+        </div>
+      </li>
+
+    <% } %>
+
+  </ol>
+
+
+  <%
+    const currentStep = session.steps.find(s => !s.completedAt)
+    if (currentStep && !currentStep.manual) {
+      let reloadDelay = 2
+
+      if (currentStep.method === 'wait') {
+        reloadDelay = currentStep.delay
+      }
+
+      if (currentStep.method === 'apiFetch') {
+        if (!currentStep.results?.length) {
+          reloadDelay = 2 // Quick reload for the first request
+        } else {
+          reloadDelay = currentStep.params.delay
+        }
+      }
+    %>
+      <div id="reload-message" class="text-gray" style="margin: 2rem 3rem; font-style: italic;">
+      </div>
+
+      <script>
+        let timeLeft = <%= reloadDelay %>
+        setInterval(() => {
+          timeLeft -= 1
+          if (timeLeft <= 0) {
+            window.location.href = '<%= currentStep.redirect %>' || '/'
+            return
+          }
+          const el = document.getElementById('reload-message')
+
+          let amount = timeLeft
+          let unit = 'second'
+          if (timeLeft > 60) {
+            amount = Math.ceil(timeLeft / 60)
+            unit = 'minute'
+          }
+
+          const remaining = `${amount} ${unit}${amount === 1 ? '' : 's'}`
+
+          if (el) el.innerText = `Page will auto-refresh in ${remaining}...`
+        }, 1000)
+      </script>
+    <%
+    }
+  %>
+
+
+  <pre class="text-tiny"><%#= JSON.stringify(session, null, 2)%></pre>
+
+</body>
+</html>

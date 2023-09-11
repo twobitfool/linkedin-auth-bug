@@ -1,12 +1,56 @@
 import crypto from 'crypto'
 import ejs from 'ejs'
 import fs from 'fs'
+import serve from 'koa-static'
 import Koa from 'koa'
-import { finalizeAuth, generateAuthUrl, getLinkedinOrgs, getLinkedinProfile } from './linkedin.js'
+import { finalizeAuth, generateAuthUrl, apiFetch } from './linkedin.js'
 
 
 const PORT = process.env.PORT || 3000
 const app = new Koa()
+
+let steps = [
+  {
+    manual: true,
+    method:  'note',
+    title:   'Begin Test',
+    text:    'We are going to create two access tokens, each with a single permission. Token #1 will only have access to /rest/me, and Token #2 will only have access to /rest/organizationAcls.',
+  },
+  {
+    method: 'authorize',
+    params: { token: 'Token #1', version: '202308', scopes: ['r_basicprofile' ] }
+  },
+  {
+    method: 'apiFetch',
+    params: { token: 'Token #1', url: ['/rest/me', '/rest/organizationAcls'] }
+  },
+  {
+    method:  'authorize',
+    params: { token: 'Token #2', version: '202308', scopes: ['r_organization_admin' ] }
+  },
+  {
+    method:  'apiFetch',
+    params: { token: '*', url: ['/rest/me', '/rest/organizationAcls'], repeat: 7, delay: 60 }
+  },
+  {
+    method:  'note',
+    title:   'Notice how Token #2 acted like Token #1 (for the first 5 minutes)',
+    text:    '😳',
+  },
+  {
+    method:  'wait',
+    title:   'Wait 5 minutes',
+    text:    'to let the API access token caching expire',
+    delay:   60 * 5,
+  },
+  {
+    manual: true,
+    method: 'reset',
+    text:   'if you want to run the demo again',
+  },
+]
+
+app.use(serve('./public'));
 
 app.use(async (ctx) => {
 
@@ -16,43 +60,54 @@ app.use(async (ctx) => {
     const data = {session}
 
     ctx.type = 'html'
-    ctx.body = htmlFromFile('./public/index.html', data)
+    ctx.body = htmlFromFile('./erb/index.html', data)
     return
   }
 
 
-  if (ctx.path === '/auth/linkedin') {
+  if (ctx.path === '/start-over') {
+    const session = getSession(ctx)
+    clearSession(session)
+
+    ctx.redirect('/')
+    return
+  }
+
+
+  if (ctx.path === '/next-step') {
     const session = getSession(ctx)
 
-    let url = ''
-    const {accounts} = session
-    const firstAccount = accounts.length === 0
+    // console.log(`\n\n🔥 Starting next step`)
+    await processsCurrentStep(session)
 
-    if (firstAccount) {
-      url = generateAuthUrl({ scopes: [
-        'r_basicprofile',
-      ] })
-    } else if (accounts.length === 1) {
-      url = generateAuthUrl({ scopes: [
-        'r_organization_admin',
-      ] })
-    } else {
-      url = '/'
-    }
-
-    ctx.redirect(url)
+    ctx.redirect('/')
     return
   }
 
 
   if (ctx.path === '/confirm-linkedin') {
     const session = getSession(ctx)
-    const firstAccount = session.accounts.length === 0
 
-    const acct = await finalizeAuth({code: ctx.query.code})
+    const {steps} = session
+    const currentStep = steps.find(step => !step.completedAt)
 
-    acct.version = '202308'
-    acct.token = `Token #${session.accounts.length + 1}`
+    if (!currentStep || currentStep.method !== 'authorize') {
+      ctx.redirect('/')
+      return
+    }
+
+    let acct = null
+    try {
+      acct = await finalizeAuth({code: ctx.query.code})
+    } catch {
+      clearSession(session)
+      ctx.redirect('/auth-error.html')
+      return
+    }
+
+    acct.version = currentStep.params.version
+    acct.token = currentStep.params.token
+
     session.accounts.push(acct)
 
     if (process.env.VERBOSE_LOGGING) {
@@ -62,75 +117,13 @@ app.use(async (ctx) => {
       console.log('-------------------------------------------------------------\n\n')
     }
 
-    if (firstAccount) {
-      try {
-        await getLinkedinProfile(acct)
-      } catch (err) {
-        console.log('Error fetching profile for first account')
-        console.error(err)
-      }
-    } else {
-      session.tests = []
-      session.status = 'running'
-      keepUsingBothTokens()
-    }
+    currentStep.done = true
+    await processsCurrentStep(session)
 
     ctx.redirect('/')
     return
-
-    async function keepUsingBothTokens() {
-
-      const accounts = session.accounts.slice(0, 2)
-
-      for (let i=0; i<session.testCount; i++) {
-        const loopStart = new Date()
-
-        const result = {
-          time: new Date().toLocaleString(),
-          requests: [],
-          status: 'pending',
-        }
-
-        for (const acct of accounts) {
-
-          result.requests.push({
-            acct: acct,
-            url: '/me',
-            apiResult: await callApi({ acct, method: getLinkedinProfile })
-          })
-
-          result.requests.push({
-            acct: acct,
-            url: '/organizationAcls',
-            apiResult: await callApi({ acct, method: getLinkedinOrgs })
-          })
-
-        }
-        session.tests.push(result)
-
-        const loopEnd = new Date()
-        const loopDuration = loopEnd - loopStart
-        const delay = session.testDelay * 1000 - loopDuration
-
-        if (i < session.testCount - 1) {
-          await new Promise(resolve => setTimeout(resolve, delay))
-        }
-      }
-
-      session.status = 'done'
-    }
   }
 
-
-  if (ctx.path === '/status') {
-    const session = getSession(ctx)
-
-    ctx.type = 'json'
-    ctx.body = {
-      tests: session.tests,
-    }
-    return
-  }
 })
 
 
@@ -141,27 +134,134 @@ console.log(`Server is running at http://localhost:${PORT}`)
 //------------------------------------------------------------------------------
 
 
-async function callApi({acct, method}) {
+async function callApi({acct, url}) {
 
   const result = {}
+  let params = {}
 
-  let requestFailed = false
+  // Limit the number of fields coming back form the API
+
+  if (url.startsWith('/rest/organizationAcls')) {
+    params = { q: `roleAssignee`, fields: [`organization`, `role`] }
+  }
+
+  if (url.startsWith('/rest/me')) {
+    params = { fields: [`id`, `localizedFirstName`, `localizedLastName`] }
+  }
+
   try {
-    result.details = await method(acct)
+    result.details = await apiFetch({acct, url, params})
     result.success = true
   } catch (err) {
-    requestFailed = true
+    result.success = false
+    // Try to parse the error response
     try {
       result.details = JSON.parse(err.data)
     } catch (e) {
-      // failed to parse json error -- no worries
+      // failed to parse json error -- just use the raw data
       result.details = err.data
     }
-    result.success = false
     console.error(err)
   }
 
   return result
+}
+
+
+//------------------------------------------------------------------------------
+
+
+async function processsCurrentStep(session) {
+  const {steps} = session
+
+  const currentStep = steps.find(step => !step.completedAt)
+  if (!currentStep) return
+
+  const {method, params} = currentStep
+
+  // console.log(`\n\n🚀 Starting step: ${method} ${params ? JSON.stringify(params, null, 2) : ''}`)
+
+  currentStep.startedAt = new Date()
+
+
+  // This is a special case, because we need to redirect to LinkedIn
+  if (method === 'authorize') {
+    const {scopes} = currentStep.params
+    currentStep.redirect = generateAuthUrl({ scopes })
+    if (!currentStep.done) {
+      return // can't mark this step as done until the after the user authorizes
+    }
+  }
+
+  else if (method === 'wait') {
+    await new Promise(resolve => setTimeout(resolve, currentStep.delay * 1000))
+  }
+
+  else if (method === 'reset') {
+    clearSession(session)
+  }
+
+  else if (method === 'note') {
+    // Nothing to do here
+  }
+
+  else if (method === 'apiFetch') {
+    const {token, url, repeat=1, delay=1000} = params
+    const urls = Array.isArray(url) ? url : [url]
+
+    let accounts = session.accounts
+    if (token !== '*') {
+      accounts = accounts.filter(acct => acct.token === token)
+    }
+
+    // console.log(` 📝 Accounts: ${accounts.map(acct => acct.token).join(', ')}`)
+    currentStep.results = []
+
+    for (let i=0; i<repeat; i++) {
+      const result = {
+        time: new Date().toLocaleString(),
+        requests: [],
+      }
+      const asyncRequests = []
+
+      for (const acct of accounts) {
+        for (const url of urls) {
+
+          // console.log(`📞 Calling ${url} ${repeat} times with ${delay} second delay`)
+
+          asyncRequests.push(new Promise(async (resolve, reject) => {
+            // console.log(`📞 Calling ${url} with ${acct.token}`)
+
+            const request = { url, apiResult: {}, token: acct.token }
+            result.requests.push(request)
+            request.apiResult = await callApi({ acct, url })
+            resolve()
+          }))
+        }
+      }
+
+      // console.log(`📞 Waiting for ${asyncRequests.length} requests to finish...`)
+      await Promise.all(asyncRequests)
+
+      // console.log(`📝 Results: ${JSON.stringify(result, null, 2)}`)
+      currentStep.results.push(result)
+
+      if (i < repeat - 1) {
+        await new Promise(resolve => setTimeout(resolve, delay * 1000))
+      }
+    }
+  }
+
+  else {
+    throw Error(`Unknown step method: ${method}`)
+  }
+
+  currentStep.completedAt = new Date()
+
+  const nextStep = steps.find(step => !step.completedAt)
+  if (nextStep && !nextStep.manual) {
+    processsCurrentStep(session)
+  }
 }
 
 
@@ -187,14 +287,17 @@ function getSession(ctx) {
       id: sessionId,
       accounts: [],
       tests: [],
-      testCount: 10,
-      testDelay: 60, // seconds between tests
-      status: 'pending'
+      steps: JSON.parse(JSON.stringify(steps)),
     }
     ctx.cookies.set(SESSION_COOKIE_NAME, sessionId, COOKIE_OPTIONS)
   }
 
   return SESSIONS[sessionId]
+}
+
+
+function clearSession(session) {
+  delete SESSIONS[session.id]
 }
 
 
