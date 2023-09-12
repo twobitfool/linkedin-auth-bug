@@ -1,12 +1,12 @@
 # LinkedIn API Auth Problem
 
-**TL;DR**: It can take up to 5 minutes before a LinkedIn API access token works correctly.
+It can take up to 5 minutes before a LinkedIn API access token works correctly.
 
 ## Explanation
 
 When you create a new LinkedIn access token, with new permissions (a.k.a.
 scopes), the old access token should be invalidated, as per this note from the
-[API docs](https://learn.microsoft.com/en-us/linkedin/shared/authentication/authorization-code-flow?tabs=HTTPS1#response)
+[API docs](https://learn.microsoft.com/en-us/linkedin/shared/authentication/authorization-code-flow?tabs=HTTPS1#response).
 
 > **Access Token Scopes and Lifetime**
 >
@@ -22,12 +22,15 @@ than 5 minutes before the new token was created -- then the old token can get
 stuck. When that happens, any API calls with the new token will use the old
 permissions (for up to 5 minutes).
 
-You can run this app to demonstrate the problem, or you can just read the rest
-of this README (to avoid all the setup) 😜
+You can run this app to demonstrate the problem... Or you can just read this
+README (to avoid all the pain of setting up your dev enivronment) 😜
 
 ## When does this happen?
 
 ![Visual of the scenario where the auth uses the old token](./public/ghost-token.png)
+
+
+## Impact
 
 This makes development difficult. Any time you make a change to the permission
 scopes, new tokens may keep using the old permission (from a previous token) for
@@ -47,7 +50,7 @@ endpoint was `r_liteprofile`, but starting with `202306` it needs to be
 account, to get a new access token with the new scope, but they could get
 permission errors from the old token, if it was used in the past 5 minutes.
 
-### Side Note on Change to Profile Permissions
+### Note on profile permissions
 
 At the time of writing this, the removal of `r_liteprofile` has not been
 documented in the [LinkedIn API Docs](https://learn.microsoft.com/en-us/linkedin/shared/integrations/people/profile-api#retrieve-current-members-profile), but
@@ -60,7 +63,7 @@ a member of the LinkedIn support team verified, saying...
 
 
 
-## Sample Output
+## Results
 
 Notice how it takes about 5 minutes before the new token starts working...
 
