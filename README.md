@@ -1,7 +1,6 @@
 # LinkedIn API Auth Problem
 
-## TL;DR
-It can take up to 5 minutes before a new access token works correctly.
+**TL;DR**: It can take up to 5 minutes before a LinkedIn API access token works correctly.
 
 ## Explanation
 
