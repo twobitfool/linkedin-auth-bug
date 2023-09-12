@@ -62,15 +62,7 @@ a member of the LinkedIn support team verified, saying...
 > `r_basicprofile` going forward.
 
 
-
-## Results
-
-Notice how it takes about 5 minutes before the new token starts working...
-
-![Screenshot of test results](./test-results.png)
-
-
-## Running this Demo Locally
+## Running this demo (locally)
 
 If don't already have one, you will need to [create an app](https://www.linkedin.com/developers/apps/new) in the LinkedIn developer portal, and then:
 1. Go to the settings for your LinkedIn app
@@ -97,3 +89,10 @@ yarn start   # or `yarn dev` (for local development with auto-reloading)
 
 open http://localhost:3000
 ```
+
+
+## Screenshot of demo app
+
+Notice how it takes about 5 minutes before the new token starts working...
+
+![Screenshot of test results](./test-results.png)
