@@ -1,0 +1,782 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>LinkedIn Auth Demo</title>
+
+  <link rel="icon" href="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7">
+
+  <link rel="stylesheet" href="/main.css">
+</head>
+
+<body class="p-2 m-2">
+
+  <h1>
+    LinkedIn API Auth Glitch
+  </h1>
+
+  <div class="" style="padding: 0.5rem 1rem; padding-top: 0; font-size: 0.95rem; color: #666">
+    <p style="opacity: 0.7">
+      <a href="/summary.html" style="color: rgb(52, 110, 255); text-decoration: none; cursor: pointer;">
+        Show Summary
+      </a>
+    </p>
+  </div>
+
+  <h3>
+    Steps:
+  </h3>
+
+  <ol>
+    
+      <li class="step completed">
+        <div class="flex-row text-darkgray" style="position: relative;">
+          <div style="position: absolute; left: -78px; text-align: right; width: 60px">
+            <div class="flex-row no-gap" style="justify-content: flex-end;">
+              
+                ✔
+              
+                1)
+            </div>
+          </div>
+
+          <div>
+            
+                  <a href="#" class="button nowrap disabled" style="margin-right: 0.5rem">
+                    Begin Test
+                  </a>
+                
+            
+          </div>
+          <div class="text-gray">
+            We are going to create two access tokens, each with a single permission. Token #1 will only have access to /rest/me, and Token #2 will only have access to /rest/organizationAcls.
+          </div>
+        </div>
+        <div>
+          
+
+        </div>
+      </li>
+
+    
+      <li class="step completed">
+        <div class="flex-row text-darkgray" style="position: relative;">
+          <div style="position: absolute; left: -78px; text-align: right; width: 60px">
+            <div class="flex-row no-gap" style="justify-content: flex-end;">
+              
+                ✔
+              
+                2)
+            </div>
+          </div>
+
+          <div>
+            
+                <div class="flex-row" style="gap: 0.5rem">
+                  
+                  <span class="">
+                    Authorize LinkedIn
+                  </span>
+                </div>
+              
+            
+          </div>
+          <div class="text-gray">
+            to create Token #1
+          </div>
+        </div>
+        <div>
+          
+
+        </div>
+      </li>
+
+    
+      <li class="step completed">
+        <div class="flex-row text-darkgray" style="position: relative;">
+          <div style="position: absolute; left: -78px; text-align: right; width: 60px">
+            <div class="flex-row no-gap" style="justify-content: flex-end;">
+              
+                ✔
+              
+                3)
+            </div>
+          </div>
+
+          <div>
+            
+                <div class="flex-row" style="gap: 0.5rem">
+                  
+                  <span class="">
+                     API test (using Token #1)
+                  </span>
+                </div>
+              
+            
+          </div>
+          <div class="text-gray">
+            
+          </div>
+        </div>
+        <div>
+          
+            <div>
+              
+                <table style="margin-top: 1rem; background-color: white;" class="text-tiny">
+                  <thead>
+                    <tr>
+                      <th></th>
+                      <th></th>
+                      
+                        <th class="nowrap" colspan="2">
+                          <b>Token #1</b>
+                          <br/>
+                          r_basicprofile (202308)
+                        </th>
+                      
+                    </tr>
+                    <tr>
+                      <th>Test&nbsp;#</th>
+                      <th>Time</th>
+                      
+                        <th>
+                          /rest/me
+                        </th>
+                      
+                        <th>
+                          /rest/organizationAcls
+                        </th>
+                      
+                    </tr>
+                  <tbody>
+                    
+                      <tr>
+                        <td>1</td>
+                        <td class="nowrap">9/28/2023, 9:56:46 AM</td>
+
+                        
+                          <td style="background-color: #c5ffc5;">
+                            <abbr class="nowrap" title="{
+  &#34;localizedLastName&#34;: &#34;Smith&#34;,
+  &#34;localizedFirstName&#34;: &#34;Matt&#34;,
+  &#34;id&#34;: &#34;wpo_2pdBhw&#34;
+}">
+                              👍 SUCCESS
+                            </abbr>
+                          </td>
+                        
+                          <td style="background-color: #ffd9d9;">
+                            <abbr class="nowrap" title="{
+  &#34;status&#34;: 403,
+  &#34;serviceErrorCode&#34;: 100,
+  &#34;code&#34;: &#34;ACCESS_DENIED&#34;,
+  &#34;message&#34;: &#34;Not enough permissions to access: partnerApiOrganizationAcls.FINDER-roleAssignee.20230801&#34;
+}">
+                              🔥 ACCESS_DENIED
+                            </abbr>
+                          </td>
+                        
+                      </tr>
+                    
+                  </tbody>
+                </table>
+              
+
+              
+            </div>
+
+          
+
+        </div>
+      </li>
+
+    
+      <li class="step completed">
+        <div class="flex-row text-darkgray" style="position: relative;">
+          <div style="position: absolute; left: -78px; text-align: right; width: 60px">
+            <div class="flex-row no-gap" style="justify-content: flex-end;">
+              
+                ✔
+              
+                4)
+            </div>
+          </div>
+
+          <div>
+            
+                <div class="flex-row" style="gap: 0.5rem">
+                  
+                  <span class="">
+                    Authorize LinkedIn
+                  </span>
+                </div>
+              
+            
+          </div>
+          <div class="text-gray">
+            to create Token #2
+          </div>
+        </div>
+        <div>
+          
+
+        </div>
+      </li>
+
+    
+      <li class="step completed">
+        <div class="flex-row text-darkgray" style="position: relative;">
+          <div style="position: absolute; left: -78px; text-align: right; width: 60px">
+            <div class="flex-row no-gap" style="justify-content: flex-end;">
+              
+                ✔
+              
+                5)
+            </div>
+          </div>
+
+          <div>
+            
+                <div class="flex-row" style="gap: 0.5rem">
+                  
+                  <span class="">
+                    7 API tests (using all tokens)
+                  </span>
+                </div>
+              
+            
+          </div>
+          <div class="text-gray">
+            
+          </div>
+        </div>
+        <div>
+          
+            <div>
+              
+                <table style="margin-top: 1rem; background-color: white;" class="text-tiny">
+                  <thead>
+                    <tr>
+                      <th></th>
+                      <th></th>
+                      
+                        <th class="nowrap" colspan="2">
+                          <b>Token #1</b>
+                          <br/>
+                          r_basicprofile (202308)
+                        </th>
+                      
+                        <th class="nowrap" colspan="2">
+                          <b>Token #2</b>
+                          <br/>
+                          r_organization_admin (202308)
+                        </th>
+                      
+                    </tr>
+                    <tr>
+                      <th>Test&nbsp;#</th>
+                      <th>Time</th>
+                      
+                        <th>
+                          /rest/me
+                        </th>
+                      
+                        <th>
+                          /rest/organizationAcls
+                        </th>
+                      
+                        <th>
+                          /rest/me
+                        </th>
+                      
+                        <th>
+                          /rest/organizationAcls
+                        </th>
+                      
+                    </tr>
+                  <tbody>
+                    
+                      <tr>
+                        <td>1</td>
+                        <td class="nowrap">9/28/2023, 9:56:53 AM</td>
+
+                        
+                          <td style="background-color: #c5ffc5;">
+                            <abbr class="nowrap" title="{
+  &#34;localizedLastName&#34;: &#34;Smith&#34;,
+  &#34;localizedFirstName&#34;: &#34;Matt&#34;,
+  &#34;id&#34;: &#34;wpo_2pdBhw&#34;
+}">
+                              👍 SUCCESS
+                            </abbr>
+                          </td>
+                        
+                          <td style="background-color: #ffd9d9;">
+                            <abbr class="nowrap" title="{
+  &#34;status&#34;: 403,
+  &#34;serviceErrorCode&#34;: 100,
+  &#34;code&#34;: &#34;ACCESS_DENIED&#34;,
+  &#34;message&#34;: &#34;Not enough permissions to access: partnerApiOrganizationAcls.FINDER-roleAssignee.20230801&#34;
+}">
+                              🔥 ACCESS_DENIED
+                            </abbr>
+                          </td>
+                        
+                          <td style="background-color: #c5ffc5;">
+                            <abbr class="nowrap" title="{
+  &#34;localizedLastName&#34;: &#34;Smith&#34;,
+  &#34;localizedFirstName&#34;: &#34;Matt&#34;,
+  &#34;id&#34;: &#34;wpo_2pdBhw&#34;
+}">
+                              👍 SUCCESS
+                            </abbr>
+                          </td>
+                        
+                          <td style="background-color: #ffd9d9;">
+                            <abbr class="nowrap" title="{
+  &#34;status&#34;: 403,
+  &#34;serviceErrorCode&#34;: 100,
+  &#34;code&#34;: &#34;ACCESS_DENIED&#34;,
+  &#34;message&#34;: &#34;Not enough permissions to access: partnerApiOrganizationAcls.FINDER-roleAssignee.20230801&#34;
+}">
+                              🔥 ACCESS_DENIED
+                            </abbr>
+                          </td>
+                        
+                      </tr>
+                    
+                      <tr>
+                        <td>2</td>
+                        <td class="nowrap">9/28/2023, 9:57:53 AM</td>
+
+                        
+                          <td style="background-color: #c5ffc5;">
+                            <abbr class="nowrap" title="{
+  &#34;localizedLastName&#34;: &#34;Smith&#34;,
+  &#34;localizedFirstName&#34;: &#34;Matt&#34;,
+  &#34;id&#34;: &#34;wpo_2pdBhw&#34;
+}">
+                              👍 SUCCESS
+                            </abbr>
+                          </td>
+                        
+                          <td style="background-color: #ffd9d9;">
+                            <abbr class="nowrap" title="{
+  &#34;status&#34;: 403,
+  &#34;serviceErrorCode&#34;: 100,
+  &#34;code&#34;: &#34;ACCESS_DENIED&#34;,
+  &#34;message&#34;: &#34;Not enough permissions to access: partnerApiOrganizationAcls.FINDER-roleAssignee.20230801&#34;
+}">
+                              🔥 ACCESS_DENIED
+                            </abbr>
+                          </td>
+                        
+                          <td style="background-color: #c5ffc5;">
+                            <abbr class="nowrap" title="{
+  &#34;localizedLastName&#34;: &#34;Smith&#34;,
+  &#34;localizedFirstName&#34;: &#34;Matt&#34;,
+  &#34;id&#34;: &#34;wpo_2pdBhw&#34;
+}">
+                              👍 SUCCESS
+                            </abbr>
+                          </td>
+                        
+                          <td style="background-color: #ffd9d9;">
+                            <abbr class="nowrap" title="{
+  &#34;status&#34;: 403,
+  &#34;serviceErrorCode&#34;: 100,
+  &#34;code&#34;: &#34;ACCESS_DENIED&#34;,
+  &#34;message&#34;: &#34;Not enough permissions to access: partnerApiOrganizationAcls.FINDER-roleAssignee.20230801&#34;
+}">
+                              🔥 ACCESS_DENIED
+                            </abbr>
+                          </td>
+                        
+                      </tr>
+                    
+                      <tr>
+                        <td>3</td>
+                        <td class="nowrap">9/28/2023, 9:58:53 AM</td>
+
+                        
+                          <td style="background-color: #c5ffc5;">
+                            <abbr class="nowrap" title="{
+  &#34;localizedLastName&#34;: &#34;Smith&#34;,
+  &#34;localizedFirstName&#34;: &#34;Matt&#34;,
+  &#34;id&#34;: &#34;wpo_2pdBhw&#34;
+}">
+                              👍 SUCCESS
+                            </abbr>
+                          </td>
+                        
+                          <td style="background-color: #ffd9d9;">
+                            <abbr class="nowrap" title="{
+  &#34;status&#34;: 403,
+  &#34;serviceErrorCode&#34;: 100,
+  &#34;code&#34;: &#34;ACCESS_DENIED&#34;,
+  &#34;message&#34;: &#34;Not enough permissions to access: partnerApiOrganizationAcls.FINDER-roleAssignee.20230801&#34;
+}">
+                              🔥 ACCESS_DENIED
+                            </abbr>
+                          </td>
+                        
+                          <td style="background-color: #c5ffc5;">
+                            <abbr class="nowrap" title="{
+  &#34;localizedLastName&#34;: &#34;Smith&#34;,
+  &#34;localizedFirstName&#34;: &#34;Matt&#34;,
+  &#34;id&#34;: &#34;wpo_2pdBhw&#34;
+}">
+                              👍 SUCCESS
+                            </abbr>
+                          </td>
+                        
+                          <td style="background-color: #ffd9d9;">
+                            <abbr class="nowrap" title="{
+  &#34;status&#34;: 403,
+  &#34;serviceErrorCode&#34;: 100,
+  &#34;code&#34;: &#34;ACCESS_DENIED&#34;,
+  &#34;message&#34;: &#34;Not enough permissions to access: partnerApiOrganizationAcls.FINDER-roleAssignee.20230801&#34;
+}">
+                              🔥 ACCESS_DENIED
+                            </abbr>
+                          </td>
+                        
+                      </tr>
+                    
+                      <tr>
+                        <td>4</td>
+                        <td class="nowrap">9/28/2023, 9:59:54 AM</td>
+
+                        
+                          <td style="background-color: #c5ffc5;">
+                            <abbr class="nowrap" title="{
+  &#34;localizedLastName&#34;: &#34;Smith&#34;,
+  &#34;localizedFirstName&#34;: &#34;Matt&#34;,
+  &#34;id&#34;: &#34;wpo_2pdBhw&#34;
+}">
+                              👍 SUCCESS
+                            </abbr>
+                          </td>
+                        
+                          <td style="background-color: #ffd9d9;">
+                            <abbr class="nowrap" title="{
+  &#34;status&#34;: 403,
+  &#34;serviceErrorCode&#34;: 100,
+  &#34;code&#34;: &#34;ACCESS_DENIED&#34;,
+  &#34;message&#34;: &#34;Not enough permissions to access: partnerApiOrganizationAcls.FINDER-roleAssignee.20230801&#34;
+}">
+                              🔥 ACCESS_DENIED
+                            </abbr>
+                          </td>
+                        
+                          <td style="background-color: #c5ffc5;">
+                            <abbr class="nowrap" title="{
+  &#34;localizedLastName&#34;: &#34;Smith&#34;,
+  &#34;localizedFirstName&#34;: &#34;Matt&#34;,
+  &#34;id&#34;: &#34;wpo_2pdBhw&#34;
+}">
+                              👍 SUCCESS
+                            </abbr>
+                          </td>
+                        
+                          <td style="background-color: #ffd9d9;">
+                            <abbr class="nowrap" title="{
+  &#34;status&#34;: 403,
+  &#34;serviceErrorCode&#34;: 100,
+  &#34;code&#34;: &#34;ACCESS_DENIED&#34;,
+  &#34;message&#34;: &#34;Not enough permissions to access: partnerApiOrganizationAcls.FINDER-roleAssignee.20230801&#34;
+}">
+                              🔥 ACCESS_DENIED
+                            </abbr>
+                          </td>
+                        
+                      </tr>
+                    
+                      <tr>
+                        <td>5</td>
+                        <td class="nowrap">9/28/2023, 10:00:54 AM</td>
+
+                        
+                          <td style="background-color: #c5ffc5;">
+                            <abbr class="nowrap" title="{
+  &#34;localizedLastName&#34;: &#34;Smith&#34;,
+  &#34;localizedFirstName&#34;: &#34;Matt&#34;,
+  &#34;id&#34;: &#34;wpo_2pdBhw&#34;
+}">
+                              👍 SUCCESS
+                            </abbr>
+                          </td>
+                        
+                          <td style="background-color: #ffd9d9;">
+                            <abbr class="nowrap" title="{
+  &#34;status&#34;: 403,
+  &#34;serviceErrorCode&#34;: 100,
+  &#34;code&#34;: &#34;ACCESS_DENIED&#34;,
+  &#34;message&#34;: &#34;Not enough permissions to access: partnerApiOrganizationAcls.FINDER-roleAssignee.20230801&#34;
+}">
+                              🔥 ACCESS_DENIED
+                            </abbr>
+                          </td>
+                        
+                          <td style="background-color: #c5ffc5;">
+                            <abbr class="nowrap" title="{
+  &#34;localizedLastName&#34;: &#34;Smith&#34;,
+  &#34;localizedFirstName&#34;: &#34;Matt&#34;,
+  &#34;id&#34;: &#34;wpo_2pdBhw&#34;
+}">
+                              👍 SUCCESS
+                            </abbr>
+                          </td>
+                        
+                          <td style="background-color: #ffd9d9;">
+                            <abbr class="nowrap" title="{
+  &#34;status&#34;: 403,
+  &#34;serviceErrorCode&#34;: 100,
+  &#34;code&#34;: &#34;ACCESS_DENIED&#34;,
+  &#34;message&#34;: &#34;Not enough permissions to access: partnerApiOrganizationAcls.FINDER-roleAssignee.20230801&#34;
+}">
+                              🔥 ACCESS_DENIED
+                            </abbr>
+                          </td>
+                        
+                      </tr>
+                    
+                      <tr>
+                        <td>6</td>
+                        <td class="nowrap">9/28/2023, 10:01:54 AM</td>
+
+                        
+                          <td style="background-color: #ffd9d9;">
+                            <abbr class="nowrap" title="{
+  &#34;status&#34;: 401,
+  &#34;serviceErrorCode&#34;: 65601,
+  &#34;code&#34;: &#34;REVOKED_ACCESS_TOKEN&#34;,
+  &#34;message&#34;: &#34;The token used in the request has been revoked by the user&#34;
+}">
+                              🔥 REVOKED_ACCESS_TOKEN
+                            </abbr>
+                          </td>
+                        
+                          <td style="background-color: #ffd9d9;">
+                            <abbr class="nowrap" title="{
+  &#34;status&#34;: 401,
+  &#34;serviceErrorCode&#34;: 65601,
+  &#34;code&#34;: &#34;REVOKED_ACCESS_TOKEN&#34;,
+  &#34;message&#34;: &#34;The token used in the request has been revoked by the user&#34;
+}">
+                              🔥 REVOKED_ACCESS_TOKEN
+                            </abbr>
+                          </td>
+                        
+                          <td style="background-color: #ffd9d9;">
+                            <abbr class="nowrap" title="{
+  &#34;status&#34;: 403,
+  &#34;serviceErrorCode&#34;: 100,
+  &#34;code&#34;: &#34;ACCESS_DENIED&#34;,
+  &#34;message&#34;: &#34;Not enough permissions to access: partnerApiMe.GET.20230801&#34;
+}">
+                              🔥 ACCESS_DENIED
+                            </abbr>
+                          </td>
+                        
+                          <td style="background-color: #c5ffc5;">
+                            <abbr class="nowrap" title="{
+  &#34;paging&#34;: {
+    &#34;start&#34;: 0,
+    &#34;count&#34;: 10,
+    &#34;links&#34;: []
+  },
+  &#34;elements&#34;: [
+    {
+      &#34;organization&#34;: &#34;urn:li:organization:72348721&#34;,
+      &#34;role&#34;: &#34;ADMINISTRATOR&#34;
+    }
+  ]
+}">
+                              👍 SUCCESS
+                            </abbr>
+                          </td>
+                        
+                      </tr>
+                    
+                      <tr>
+                        <td>7</td>
+                        <td class="nowrap">9/28/2023, 10:02:55 AM</td>
+
+                        
+                          <td style="background-color: #ffd9d9;">
+                            <abbr class="nowrap" title="{
+  &#34;status&#34;: 401,
+  &#34;serviceErrorCode&#34;: 65601,
+  &#34;code&#34;: &#34;REVOKED_ACCESS_TOKEN&#34;,
+  &#34;message&#34;: &#34;The token used in the request has been revoked by the user&#34;
+}">
+                              🔥 REVOKED_ACCESS_TOKEN
+                            </abbr>
+                          </td>
+                        
+                          <td style="background-color: #ffd9d9;">
+                            <abbr class="nowrap" title="{
+  &#34;status&#34;: 401,
+  &#34;serviceErrorCode&#34;: 65601,
+  &#34;code&#34;: &#34;REVOKED_ACCESS_TOKEN&#34;,
+  &#34;message&#34;: &#34;The token used in the request has been revoked by the user&#34;
+}">
+                              🔥 REVOKED_ACCESS_TOKEN
+                            </abbr>
+                          </td>
+                        
+                          <td style="background-color: #ffd9d9;">
+                            <abbr class="nowrap" title="{
+  &#34;status&#34;: 403,
+  &#34;serviceErrorCode&#34;: 100,
+  &#34;code&#34;: &#34;ACCESS_DENIED&#34;,
+  &#34;message&#34;: &#34;Not enough permissions to access: partnerApiMe.GET.20230801&#34;
+}">
+                              🔥 ACCESS_DENIED
+                            </abbr>
+                          </td>
+                        
+                          <td style="background-color: #c5ffc5;">
+                            <abbr class="nowrap" title="{
+  &#34;paging&#34;: {
+    &#34;start&#34;: 0,
+    &#34;count&#34;: 10,
+    &#34;links&#34;: []
+  },
+  &#34;elements&#34;: [
+    {
+      &#34;organization&#34;: &#34;urn:li:organization:72348721&#34;,
+      &#34;role&#34;: &#34;ADMINISTRATOR&#34;
+    }
+  ]
+}">
+                              👍 SUCCESS
+                            </abbr>
+                          </td>
+                        
+                      </tr>
+                    
+                  </tbody>
+                </table>
+              
+
+              
+            </div>
+
+          
+
+        </div>
+      </li>
+
+    
+      <li class="step completed">
+        <div class="flex-row text-darkgray" style="position: relative;">
+          <div style="position: absolute; left: -78px; text-align: right; width: 60px">
+            <div class="flex-row no-gap" style="justify-content: flex-end;">
+              
+                ✔
+              
+                6)
+            </div>
+          </div>
+
+          <div>
+            
+                <div class="flex-row" style="gap: 0.5rem">
+                  
+                  <span class="">
+                    Notice how Token #2 acted like Token #1 (for the first 5 minutes)
+                  </span>
+                </div>
+              
+            
+          </div>
+          <div class="text-gray">
+            😳
+          </div>
+        </div>
+        <div>
+          
+
+        </div>
+      </li>
+
+    
+      <li class="step completed">
+        <div class="flex-row text-darkgray" style="position: relative;">
+          <div style="position: absolute; left: -78px; text-align: right; width: 60px">
+            <div class="flex-row no-gap" style="justify-content: flex-end;">
+              
+                ✔
+              
+                7)
+            </div>
+          </div>
+
+          <div>
+            
+                <div class="flex-row" style="gap: 0.5rem">
+                  
+                  <span class="">
+                    Wait 5 minutes
+                  </span>
+                </div>
+              
+            
+          </div>
+          <div class="text-gray">
+            to let the API access token caching expire
+          </div>
+        </div>
+        <div>
+          
+
+        </div>
+      </li>
+
+    
+      <li class="step current">
+        <div class="flex-row " style="position: relative;">
+          <div style="position: absolute; left: -78px; text-align: right; width: 60px">
+            <div class="flex-row no-gap" style="justify-content: flex-end;">
+              
+                <div class="bouncing-right">
+                  👉
+                </div>
+              
+                8)
+            </div>
+          </div>
+
+          <div>
+            
+                  <a href="/next-step" class="button nowrap " style="margin-right: 0.5rem">
+                    Reset and Start Over
+                  </a>
+                
+            
+          </div>
+          <div class="text-gray">
+            if you want to run the demo again
+          </div>
+        </div>
+        <div>
+          
+
+        </div>
+      </li>
+
+    
+
+  </ol>
+
+
+  
+
+
+  <pre class="text-tiny"></pre>
+
+</body>
+</html>
