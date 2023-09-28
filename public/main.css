@@ -44,6 +44,12 @@ th {
   background-color: #f6f6f6;
   font-weight: normal;
 }
+pre {
+  background-color: #f6f6f6;
+  border-radius: 4px;
+  padding: 0.5rem;
+  overflow-x: auto;
+}
 .button {
   border: 1px solid #555588;
   border-radius: 4px;

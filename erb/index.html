@@ -97,6 +97,14 @@
             %>
           </div>
         </div>
+        <% if (step.method === 'authorize' && status === 'completed') { %>
+          <div class="text-gray text-tiny m-2">
+            <%
+              const account = session.accounts.find(a => a.token === step.params.token)
+            %>
+            <pre><%= JSON.stringify(account, null, 2) %></pre>
+          </div>
+        <% } %>
         <div>
           <% if (step.method === 'apiFetch') { %>
             <div>
